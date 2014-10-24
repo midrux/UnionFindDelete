@@ -24,12 +24,18 @@ bool Test(int N, int Q, bool display_screen = false){
 		elem1 = rand() % N, elem2 = rand() % N;
 
 		if (p == 0){
-			//cout << "Union (" << elem1 << ", " << elem2 << ")" << endl;
-			UFD.UnionSets(elem1, elem2);
-			UFS.UnionSets(elem1, elem2);
+			if (UFD.Contains(elem1) && UFD.Contains(elem2)){
+				//cout << "Union (" << elem1 << ", " << elem2 << ")" << endl;
+				UFD.UnionSets(elem1, elem2);
+				UFS.UnionSets(elem1, elem2);
+			}
 		}
 		else{
-
+			if (UFD.Contains(elem1) && N == 3){
+				//cout << "Delete (" << elem1 << ")\n";
+				UFS.Delete(elem1);
+				UFD.Delete(elem1);
+			}
 		}
 		if (display_screen){
 			cout << "UFD: \n";
@@ -71,37 +77,55 @@ void TestCorrectness(int MAX_ELEMS = 50){
 }
 
 void TestPerformance(int N, int Q){
+	map<int, unsigned int> map_node;
 	UnionFindDelete<int> B;
-	for (int i = 0; i < N; i++)
-		B.MakeSet(i,i);
-
+	int next = 0;
+	for (; next < N; next++){
+		map_node[next] =  B.MakeSet(next);
+	}
+	
 	char op;
 	int cntDebug = 0;
 	for (int i = 0; i<Q; i++){
+		N = map_node.size();
+	//	cout << "i = " << i << endl;
+		//if (i == 4124)
+			//cout << "debug here\n";
 		if (i % 10000 == 0) cout << "Operation: " << i << endl;
+		//Choose random elements from the map_node
 		random_device rd;
 		mt19937 gen(rd());
 		uniform_int_distribution<> dis(0, N - 1);
+		
+		int p = rand() % 3, r1 = dis(gen), r2 = dis(gen);
+		r1 = rand()%N, r2 = rand()%N;
+		auto item = map_node.begin();
+		advance(item, r1);
+		unsigned int elem1 = item->second;
+		item = map_node.begin();
+		advance(item, r2);
+		unsigned int elem2 = item->second;
 
-		int p = rand() % 2, elem1 = dis(gen), elem2 = dis(gen);
 		//elem1 = rand()%N, elem2 = rand()%N;
-		if (p == 0 || i % 2 == 0){
-
+		if (p == 0){
+			if (B.Contains(elem1) && B.Contains(elem2))
 			//cout << "Union (" << elem1 << ", " << elem2 << ")" << endl;
-			B.UnionSets(elem1, elem2);
+				B.UnionSets(elem1, elem2);
+		}
+		else if (p == 1){
+			if (B.Contains(elem1))
+				B.Delete(elem1);
 		}
 		else{
-			unsigned int who = B.FindSet(elem1);
-			//cout << "Separate(" << elem1 << ")" << endl;
-			//B.Separate(elem1);
+			unsigned int temp = B.MakeSet(next);
+			map_node[temp] = next;
 		}
-		//B.CheckInvariants();
 	}
 }
 
 
 int main(){
-	TestCorrectness(100);
+	//TestCorrectness(100);
 	int elems, queries;
 	
 	

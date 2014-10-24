@@ -48,7 +48,7 @@ public:
 	}
 
 
-	//Find the representant of a set
+	//Find the representant of an element
 	unsigned int FindSet(unsigned int x){
 		Node& node = GetNode(x);
 		unsigned int parent = node.parent;
@@ -61,7 +61,7 @@ public:
 	void Delete(unsigned int x){
 		Node& node = GetNode(x);
 		if (node.parent != x){
-			Clean(node,x);
+			Clean(node.parent);
 		}
 		if (node.children != 0)
 			node.marked_to_delete = true;
@@ -69,15 +69,26 @@ public:
 			Free(x);
 	}
 
+	//Split an element
+	unsigned int Split(unsigned int x){
+		Node& node = GetNode(x);
+		T old_data = node.data;
+		Delete(x);
+		unsigned int new_x = MakeSet(old_data);
+		return new_x;
+	}
 	//Return all elements separated by sets
 	std::set< std::set<T> > Forest(){
 		std::map<unsigned int, std::set<T> > mapped_sets;
 
 		for (auto it = map_node.begin(); it != map_node.end(); ++it){
 			unsigned int cur = it->first;
+			Node& cur_node = GetNode(cur);
+			if (cur_node.marked_to_delete) continue;
 			unsigned int root = FindSet(cur);
 			Node& node = it->second;
-			mapped_sets[root].insert(node.data);
+			if (!node.marked_to_delete)
+				mapped_sets[root].insert(node.data);
 		}
 
 		std::set< std::set<T> > result;
@@ -101,6 +112,16 @@ public:
 		}
 		cout << result;
 	}
+
+	bool Contains(unsigned int x){
+		if (map_node.find(x) != map_node.end()){
+			Node& node = GetNode(x);
+			if (!node.marked_to_delete)
+				return true;
+		}
+		return false;
+	}
+
 	
 private:
 
@@ -132,7 +153,11 @@ private:
 
 	Node& GetNode(unsigned int x){
 		auto it = map_node.find(x);
-		return it->second;
+		if (it != map_node.end())
+			return it->second;
+		else{
+			throw("NO vertex");
+		}
 	}
 
 	//Clean element
@@ -140,7 +165,7 @@ private:
 		Node& node = GetNode(x);
 		--node.children;
 		if (node.parent != x){
-			Clean(node.parent)
+			Clean(node.parent);
 		}
 		if (node.marked_to_delete && node.children == 0){
 			Free(x);

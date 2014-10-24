@@ -6,7 +6,7 @@ using namespace std;
 
 class UnionFindSplitBF{
 public:
-	UnionFindSplitBF(int N) : parent(N), rank(N) { for (int i = 0; i<N; i++) { parent[i] = i; rank[i] = 0; } }
+	UnionFindSplitBF(int N) : parent(N), rank(N), deleted(N) { for (int i = 0; i < N; i++) { parent[i] = i; rank[i] = 0;  deleted[i] = false; } }
 	void Union(int x, int y){
 		if (rank[x] < rank[y]) parent[x] = y;
 		else if (rank[x] > rank[y]) parent[y] = x;
@@ -17,6 +17,9 @@ public:
 	}
 	int Find(int x){ if (x != parent[x]) parent[x] = Find(parent[x]); return parent[x]; }
 	void UnionSets(int x, int y){ Union(Find(x), Find(y)); }
+	void Delete(int x){
+		deleted[x] = true;
+	}
 	void Split(int x){
 		int rx = Find(x);
 		if (x != rx){
@@ -55,11 +58,14 @@ public:
 	}
 
 	vector<int> parent, rank;
+	vector<bool> deleted;
+	
 	set<set<int> > Forest(){
 		set<set<int> > ret;
 		vector< set<int> > sets(parent.size());
 		for (int i = 0; i<parent.size(); i++){
-			sets[Find(i)].insert(i);
+			if (!deleted[i])
+				sets[Find(i)].insert(i);
 		}
 		for (int i = 0; i<parent.size(); i++){
 			if (!sets[i].empty())
