@@ -23,5 +23,8 @@
     <ClInclude Include="UnionFindDelete.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="UnionFindSplitBF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

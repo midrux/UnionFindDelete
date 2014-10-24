@@ -9,8 +9,7 @@
 #include <set>
 #include <sstream>
 template <typename T>
-class UnionFindDelete
-{
+class UnionFindDelete{
 public:
 	//Constructor
 	UnionFindDelete() : next_available(0) {};
@@ -45,10 +44,31 @@ public:
 		int set_x = FindSet(x);
 		int set_y = FindSet(y);
 		if (set_x != set_y)
-			Link(x, y);
+			Link(set_x, set_y);
 	}
 
-	
+
+	//Find the representant of a set
+	unsigned int FindSet(unsigned int x){
+		Node& node = GetNode(x);
+		unsigned int parent = node.parent;
+		if (parent != x)
+			parent = FindSet(parent);
+		return parent;
+	}
+
+	//Delete an element
+	void Delete(unsigned int x){
+		Node& node = GetNode(x);
+		if (node.parent != x){
+			Clean(node,x);
+		}
+		if (node.children != 0)
+			node.marked_to_delete = true;
+		else
+			Free(x);
+	}
+
 	//Return all elements separated by sets
 	std::set< std::set<T> > Forest(){
 		std::map<unsigned int, std::set<T> > mapped_sets;
@@ -86,8 +106,9 @@ private:
 
 	struct Node{
 		T data;
-		unsigned int parent, rank;
-		Node(const T& value, unsigned int _parent) : data(value), parent(_parent), rank(0) {}
+		unsigned int parent, rank, children;
+		bool marked_to_delete;
+		Node(const T& value, unsigned int _parent) : data(value), parent(_parent), rank(0), children(0), marked_to_delete(false) {}
 	};
 
 	//Link two elements numbered 'x' and 'y'
@@ -99,26 +120,40 @@ private:
 		unsigned int rank_y = node_y.rank;
 		if (rank_x > rank_y){
 			node_y.parent = x;
+			node_x.children += node_y.children + 1;
 		}
 		else{
 			node_x.parent = y;
+			node_y.children += node_x.children + 1;
 			if (rank_x == rank_y)
 				++rank_y;
 		}
 	}
 
-	//Find the representant of a set
-	unsigned int FindSet(unsigned int x){
-		Node& node = GetNode(x);
-		unsigned int parent = node.parent;
-		if (parent != x)
-			parent = FindSet(parent);
-		return parent;
-	}
-	
 	Node& GetNode(unsigned int x){
 		auto it = map_node.find(x);
 		return it->second;
+	}
+
+	//Clean element
+	void Clean(unsigned int x){
+		Node& node = GetNode(x);
+		--node.children;
+		if (node.parent != x){
+			Clean(node.parent)
+		}
+		if (node.marked_to_delete && node.children == 0){
+			Free(x);
+		}
+	}
+
+	//Delete element: 
+	//TODO: Check if elements are in the data-structures before (compare performance without checks)
+	void Free(unsigned int x){
+		if (map_node.find(x) != map_node.end())
+			map_node.erase(x);
+		else
+			throw ("Tried to delete non-existant element\n");
 	}
 
 	//std::unordered_map<unsigned int, Node> map_node;
