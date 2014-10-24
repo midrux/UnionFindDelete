@@ -11,6 +11,7 @@ int main(){
 	}
 	B.UnionSets(0, 1);
 	B.UnionSets(2, 3);
+	B.UnionSets(2, 4);
 	B.Display();
 	
 	return 0;
