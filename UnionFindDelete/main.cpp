@@ -4,6 +4,7 @@
 #include <chrono>
 #include "UnionFindDelete.hpp"
 #include "UnionFindSplitBF.h"
+#include "UnionFindSplitINT.h"
 using namespace std;
 using namespace std::chrono;
 
@@ -127,7 +128,7 @@ void TestPerformance(int N, int Q){
 int main(){
 	//TestCorrectness(100);
 	int elems, queries;
-	
+		
 	
 	cout << "Write: Amount of elements followed by amount of queries\n";
 	while (cin >> elems >> queries){
