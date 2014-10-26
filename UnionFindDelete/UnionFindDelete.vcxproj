@@ -79,10 +79,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="UnionFindSplitINT.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="UnionFindDelete.hpp" />
     <ClInclude Include="UnionFindSplitBF.h" />
+    <ClInclude Include="UnionFindSplitINT.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
